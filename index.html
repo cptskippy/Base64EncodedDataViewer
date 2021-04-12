@@ -74,94 +74,95 @@
         <div id="output" />
         
         <script>
-            var _form = document.getElementById("dataViewer");
-            var _data = document.getElementById("data");
-            var _output = document.getElementById("output");
             
-            var _containerType = document.getElementById("containerType").value;
-            var _mimeType = document.getElementById("mimeType").value;
-            var _recKey = document.getElementById("recId").value;
-            var _minSize = document.getElementById("minSize").value;
-            
-            var createDataElement = function (base64, title) {
-              // If we determine this is valid b64 content we render it to
-              // a _containerType using the specified _mimeType and put it
-              // in a label with the provided title.
-              
-              let m = _minSize;
-            
-              // Simple b64 test criteria
-              var rx_b64 = /[A-Za-z0-9+/=]/;
-              
-              if(base64.length > m && rx_b64.test(base64))
-                  try {
-                      atob(base64);  // Try to decode it
-                      
-                      let i = document.createElement(_containerType);
-                      i.src = "data:" + _mimeType + ";base64, " + base64;
-                      i.title = title;
-                      
-                      let l = document.createElement("label");
-                      l.append(title); // Inline text
-                      l.append(i);
-                      
-                      return l;
-                  } catch {
-                      // Not base64, move along...
-                  }
-            };
+            var displayData = function (e) {
+                var _form = document.getElementById("dataViewer");
+                var _data = document.getElementById("data");
+                var _output = document.getElementById("output");
+                
+                var _containerType = document.getElementById("containerType").value;
+                var _mimeType = document.getElementById("mimeType").value;
+                var _recKey = document.getElementById("recId").value;
+                var _minSize = document.getElementById("minSize").value;
+                
+                var createDataElement = function (base64, title) {
+                  // If we determine this is valid b64 content we render it to
+                  // a _containerType using the specified _mimeType and put it
+                  // in a label with the provided title.
+                  
+                  let m = _minSize;
+                
+                  // Simple b64 test criteria
+                  var rx_b64 = /[A-Za-z0-9+/=]/;
+                  
+                  if(base64.length > m && rx_b64.test(base64))
+                      try {
+                          atob(base64);  // Try to decode it
+                          
+                          let i = document.createElement(_containerType);
+                          i.src = "data:" + _mimeType + ";base64, " + base64;
+                          i.title = title;
+                          
+                          let l = document.createElement("label");
+                          l.append(title); // Inline text
+                          l.append(i);
+                          
+                          return l;
+                      } catch {
+                          // Not base64, move along...
+                      }
+                };
 
-            var renderMatches = function(key, value) {
-                let k = _recKey;
-                let o = _output;
-                let c = o.lastChild;
-                
-                // Create a container to dump output if non exists
-                if(!c) {
-                  c = document.createElement(o.nodeName);
-                  o.append(c);
-                }
-                
-                if(key === k) {
-                    // Creating a heading so this should be the first element.  If not create a new one and swap
-                    if(c.firstChild) {
+                var renderMatches = function(key, value) {
+                    let k = _recKey;
+                    let o = _output;
+                    let c = o.lastChild;
+                    
+                    // Create a container to dump output if non exists
+                    if(!c) {
                       c = document.createElement(o.nodeName);
                       o.append(c);
                     }
+                    
+                    if(key === k) {
+                        // Creating a heading so this should be the first element.  If not create a new one and swap
+                        if(c.firstChild) {
+                          c = document.createElement(o.nodeName);
+                          o.append(c);
+                        }
+                            
+                        let h = document.createElement("h1");
+                        h.append(k + " : " + value);
                         
-                    let h = document.createElement("h1");
-                    h.append(k + " : " + value);
-                    
-                    c.append(h);                    
-                } else {
-                    let r = createDataElement(value,key);
-                    
-                    if(r)
-                      c.append(r);                          
-                }
-            };
+                        c.append(h);                    
+                    } else {
+                        let r = createDataElement(value,key);
+                        
+                        if(r)
+                          c.append(r);                          
+                    }
+                };
 
-            var walk = function(object, property, callback) {
-                // Recursively walk an object looking for string properties and
-                // calling a callback method with the property name and value
-                
-                let k;
-                let v = object[property];
-               
-                if (v) {
-                    if(typeof v === "string") {
-                        callback(property, v);
-                    } else if (typeof v === "object") {
-                        for (k in v) {
-                            if (Object.prototype.hasOwnProperty.call(v, k)) {
-                                walk(v, k, callback);
+                var walk = function(object, property, callback) {
+                    // Recursively walk an object looking for string properties and
+                    // calling a callback method with the property name and value
+                    
+                    let k;
+                    let v = object[property];
+                   
+                    if (v) {
+                        if(typeof v === "string") {
+                            callback(property, v);
+                        } else if (typeof v === "object") {
+                            for (k in v) {
+                                if (Object.prototype.hasOwnProperty.call(v, k)) {
+                                    walk(v, k, callback);
+                                }
                             }
                         }
-                    }
-                } 
-            };
-            
-            var displayData = function (e) {
+                    } 
+                };
+                
                 let d = _data.value;
             
                 if(e) {
